@@ -65,6 +65,7 @@ public:
 				{
 					pending_obj_or_arr = false;
 					pushAndAscend(soup::make_unique<soup::JsonArray>());
+					soup::string::trim(buf); // discard indentation
 					dischargeBuffer();
 				}
 				else
