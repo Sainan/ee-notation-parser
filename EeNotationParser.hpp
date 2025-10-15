@@ -168,7 +168,7 @@ protected:
 
 	void pushAndAscend(soup::UniquePtr<soup::JsonNode> value)
 	{
-		SOUP_ASSERT(value->type == soup::JSON_ARRAY || value->type == soup::JSON_OBJECT);
+		SOUP_ASSERT(value->getType() == soup::JSON_ARRAY || value->getType() == soup::JSON_OBJECT);
 		auto ptr = value.get();
 		pushValue(std::move(value));
 		stack.push(ptr);
@@ -176,7 +176,7 @@ protected:
 
 	void pushValue(soup::UniquePtr<soup::JsonNode> value)
 	{
-		if (stack.top()->type == soup::JSON_ARRAY)
+		if (stack.top()->getType() == soup::JSON_ARRAY)
 		{
 			static_cast<soup::JsonArray*>(stack.top())->children.emplace_back(std::move(value));
 		}
