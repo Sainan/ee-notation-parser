@@ -186,4 +186,67 @@ protected:
 			key.clear();
 		}
 	}
+
+public:
+	static std::string unparse(const soup::JsonObject& obj)
+	{
+		std::string str;
+		unparse(obj, str);
+		return str;
+	}
+
+protected:
+	static void unparse(const soup::JsonObject& obj, std::string& out)
+	{
+		for (const auto& e : obj)
+		{
+			unparse(*e.first, out);
+			out.push_back('=');
+			unparse(*e.second, out);
+			out.push_back('\n');
+		}
+	}
+
+	static void unparse(const soup::JsonNode& n, std::string& out)
+	{
+		switch (n.getType())
+		{
+		case soup::JSON_OBJECT:
+			out.append("{\n");
+			unparse(n.reinterpretAsObj(), out);
+			out.push_back('}');
+			break;
+
+		case soup::JSON_ARRAY: {
+			out.push_back('{');
+			for (const auto& e : n.reinterpretAsArr().children)
+			{
+				out.push_back('\n');
+				unparse(*e, out);
+				out.push_back(',');
+			}
+			if (out.back() == ',')
+			{
+				out.pop_back();
+			}
+			if (!n.reinterpretAsArr().empty())
+			{
+				out.push_back('\n');
+			}
+			out.push_back('}');
+			break;
+		}
+
+		case soup::JSON_STRING:
+			if (!n.reinterpretAsStr().value.empty())
+			{
+				out.append(n.reinterpretAsStr().value);
+				break;
+			}
+			[[fallthrough]];
+		default:
+			out.append(n.encode());
+			break;
+		}
+	}
 };

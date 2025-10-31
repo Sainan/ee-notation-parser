@@ -9,4 +9,5 @@ This header-only library is designed to be included alongside [Soup](https://git
 ## CLI Tools
 
 - [ee2json](ee2json)
+- [json2ee](json2ee)
 - [bin2json](bin2json)
