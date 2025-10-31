@@ -2,7 +2,7 @@
 
 #include <FileReader.hpp>
 
-#include "EeNotationParser.hpp"
+#include "../EeNotationParser.hpp"
 
 int main(int argc, const char* argv[])
 {
@@ -14,10 +14,10 @@ int main(int argc, const char* argv[])
 	soup::FileReader fr(argv[1]);
 	fr.skip(20); // skip hash?
 	std::string str;
-	fr.str_lp<soup::u32le_t>(str);
+	fr.str_lp<soup::u32_le_t>(str);
 	if (str.c_str()[0] == '/') // first string might be filename, assuming then that the metadata is right after it
 	{
-		fr.str_lp<soup::u32le_t>(str);
+		fr.str_lp<soup::u32_le_t>(str);
 	}
 	EeNotationParser par;
 	auto out = par.parse(str);

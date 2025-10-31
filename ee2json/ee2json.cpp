@@ -1,6 +1,6 @@
 #include <iostream>
 
-#include "EeNotationParser.hpp"
+#include "../EeNotationParser.hpp"
 
 int main(int argc, const char* argv[])
 {
