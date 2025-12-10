@@ -1,0 +1,103 @@
+export function parse(data)
+	local stack = {}
+	local key = ""
+	local buf = ""
+
+	local function push_value(value)
+		local top = stack[#stack]
+		if top.__order then
+			top.__order:insert(key)
+			top[key] = value
+			key = ""
+		else
+			top:insert(value)
+		end
+	end
+
+	local function push_and_ascend(value)
+		assert(type(value) == "table")
+		push_value(value)
+		stack:insert(value)
+	end
+
+	local function discharge_buffer()
+		push_value(tonumber(buf) or buf)
+		buf = ""
+	end
+
+	local root = { __order = {} }
+	stack:insert(root)
+	local pending_obj_or_arr = false
+	local is_string = false
+	for data:split("") as c do
+		if is_string then
+			if c == '"' then
+				is_string = false
+				discharge_buffer()
+			elseif c ~= '\t' then
+				buf ..= c
+			end
+			continue
+		end
+		if c == '=' then
+			if pending_obj_or_arr then
+				pending_obj_or_arr = false
+				push_and_ascend({ __order = {} })
+			end
+			key = buf:strip()
+			buf = ""
+		elseif c == '{' then
+			buf = "" -- discard indentation
+			if pending_obj_or_arr then
+				push_and_ascend({})
+			end
+			pending_obj_or_arr = true
+		elseif c == ',' then
+			if pending_obj_or_arr then
+				pending_obj_or_arr = false
+				push_and_ascend({})
+				buf = buf:strip() -- discard indentation
+				discharge_buffer()
+			else
+				buf = buf:strip()
+				if buf ~= "" then
+					discharge_buffer()
+				end
+			end
+		elseif c == '}' then
+			if pending_obj_or_arr then
+				pending_obj_or_arr = false
+				push_and_ascend({})
+			end
+			buf = buf:strip()
+			if buf ~= "" then
+				discharge_buffer()
+			end
+			stack:remove()
+		elseif c == '"' then
+			if pending_obj_or_arr then
+				pending_obj_or_arr = false
+				push_and_ascend({})
+			end
+			if buf == "" then
+				is_string = true
+			else
+				buf ..= c
+			end
+		elseif c == '\n' then
+			if not pending_obj_or_arr then
+				buf = buf:strip()
+				if buf ~= "" then
+					discharge_buffer()
+				end
+			end
+		elseif c ~= '\r' then
+			buf ..= c
+		end
+	end
+	assert(stack[#stack] == root)
+	assert(#stack == 1)
+	assert(buf == "")
+	assert(key == "")
+	return root
+end

@@ -41,12 +41,8 @@ public:
 				{
 					pending_obj_or_arr = false;
 					pushAndAscend(soup::make_unique<soup::JsonObject>());
-					key = std::move(buf);
 				}
-				else
-				{
-					key = std::move(buf);
-				}
+				key = std::move(buf);
 				buf.clear();
 				soup::string::trim(key);
 			}
